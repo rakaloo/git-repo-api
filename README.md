@@ -19,3 +19,6 @@ In the event that this command gives an FLASK_APP environment variable not set e
 
 Once the application is running, hit the following endpoint via curl or Postman, etc:<br>
 `http://127.0.0.1:5000/user/<username>`
+
+The `master` branch returns the Github information associated with the username provided.  
+The `add-bitbucket-api` branch returns the Bitbucket information associated with the username provided.
