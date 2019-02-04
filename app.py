@@ -76,21 +76,18 @@ def create_app(test_config=None):
     def get_paginated_count(url):
         count = 0
         while url:
-            response = requests.get(url, headers=headers)
+            response = requests.get(url, headers={'Content-Type': 'application/json'})
             check_response_status(response.status_code)
 
             response_data = json.loads(response.text)
             values = response_data['values']
             count += len(values)
-            url = response_data.next if response_data.next else None                
+            url = response_data['next'] if 'next' in response_data else None                
         return count
 
     def get_bitbucket_user(username):
-        BITBUCKET_BASE_URL = 'https://api.bitbucket.org/2.0'
-        headers = {'Content-Type': 'application/json'}
-
-        repo_url = BITBUCKET_BASE_URL + f'/users/{username}/repositories'
-        response = requests.get(repo_url, headers=headers)
+        repo_url = f'https://api.bitbucket.org/2.0/users/{username}/repositories'
+        response = requests.get(repo_url, headers={'Content-Type': 'application/json'})
         check_response_status(response.status_code)
 
         repo_data = json.loads(response.text)
@@ -109,18 +106,16 @@ def create_app(test_config=None):
 
         for repo in repo_data['values']:
             data['account_size'] += repo['size']
+            data['languages'][repo['language']] += 1
 
-            if repo.parent:
+            if 'parent' in repo:
                 data['public_repos']['forked'] += 1
             else:
                 data['public_repos']['original'] += 1
-                data['commits'] += get_paginated_count(repo['links']['commits'])
+                data['commits'] += get_paginated_count(repo['links']['commits']['href'])
 
-            if repo.has_issues:
-                data['open_issues'] += get_paginated_count(repo['links']['issues'])
-
-            if repo.language:
-                    data['languages'][repo['language'] += 1
+            if repo['has_issues']:
+                data['open_issues'] += get_paginated_count(repo['links']['issues']['href'])
 
         return data
 
