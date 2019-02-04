@@ -1,4 +1,4 @@
-**Git Repo API*
+**Git Repo API**
 An API for aggregating information across Git repository hosting services - GitHub and BitBucket
 
 *Project setup*
